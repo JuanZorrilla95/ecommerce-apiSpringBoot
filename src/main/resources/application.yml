@@ -18,8 +18,3 @@ spring:
 
 server:
   port: 8080
-
-  security:
-    user:
-#      name: juanz
-#      password: 1464

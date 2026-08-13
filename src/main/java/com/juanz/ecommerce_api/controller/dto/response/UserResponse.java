@@ -1,4 +1,4 @@
-package com.juanz.ecommerce_api.dto.response;
+package com.juanz.ecommerce_api.controller.dto.response;
 
 import lombok.Builder;
 import lombok.Data;

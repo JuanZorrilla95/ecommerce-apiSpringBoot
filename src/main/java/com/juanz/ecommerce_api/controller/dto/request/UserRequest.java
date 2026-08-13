@@ -1,4 +1,4 @@
-package com.juanz.ecommerce_api.dto.request;
+package com.juanz.ecommerce_api.controller.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

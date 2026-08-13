@@ -1,7 +1,8 @@
 package com.juanz.ecommerce_api.service.impl;
 
-import com.juanz.ecommerce_api.dto.request.UserRequest;
-import com.juanz.ecommerce_api.dto.response.UserResponse;
+import com.juanz.ecommerce_api.controller.dto.request.UserRequest;
+import com.juanz.ecommerce_api.controller.dto.response.UserResponse;
+import com.juanz.ecommerce_api.controller.dto.response.ErrorResponse;
 import com.juanz.ecommerce_api.entity.Role;
 import com.juanz.ecommerce_api.entity.User;
 import com.juanz.ecommerce_api.repository.UserRepository;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.juanz.ecommerce_api.exception.UserAlreadyExistsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.juanz.ecommerce_api.exception.UserNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository; //Spring inyecta automáticamente el repositorio
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse create(UserRequest request) {
@@ -27,17 +30,19 @@ public class UserServiceImpl implements UserService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
-                .password(request.getPassword()) // luego la encriptaremos
+                .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.CUSTOMER)
                 .enabled(true)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        User savedUser = userRepository.save(user);
+
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException(request.getEmail());
         }
+        User savedUser = userRepository.save(user);
+        //User saved = userRepository.save(user);
         return UserResponse.builder()
                 .id(savedUser.getId())
                 .firstName(savedUser.getFirstName())
@@ -59,4 +64,51 @@ public class UserServiceImpl implements UserService {
                         .build())
                 .toList();
     }
+
+    public UserResponse findById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id)); //si existe el user, devolvelo, sino lanza excepcion
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .build();
+    }
+    //PUT
+    @Override
+    public UserResponse update(Long id, UserRequest request) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        if (!user.getEmail().equals(request.getEmail())
+                && userRepository.existsByEmail(request.getEmail())) {
+            throw new UserAlreadyExistsException(request.getEmail());
+        }
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        User updatedUser = userRepository.save(user);
+
+        return UserResponse.builder()
+                .id(updatedUser.getId())
+                .firstName(updatedUser.getFirstName())
+                .lastName(updatedUser.getLastName())
+                .email(updatedUser.getEmail())
+                .build();
+    }
+	//DELETE
+	@Override
+	public void delete(Long id) {
+
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new UserNotFoundException(id));
+
+		userRepository.delete(user);
+}
 }
