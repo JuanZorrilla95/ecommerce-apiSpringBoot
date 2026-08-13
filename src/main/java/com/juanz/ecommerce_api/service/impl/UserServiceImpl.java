@@ -2,6 +2,7 @@ package com.juanz.ecommerce_api.service.impl;
 
 import com.juanz.ecommerce_api.controller.dto.request.UserRequest;
 import com.juanz.ecommerce_api.controller.dto.response.UserResponse;
+import com.juanz.ecommerce_api.controller.dto.request.ChangePasswordRequest;
 import com.juanz.ecommerce_api.controller.dto.response.ErrorResponse;
 import com.juanz.ecommerce_api.entity.Role;
 import com.juanz.ecommerce_api.entity.User;
@@ -11,8 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.juanz.ecommerce_api.exception.UserAlreadyExistsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+//excepciones
 import com.juanz.ecommerce_api.exception.UserNotFoundException;
-
+import com.juanz.ecommerce_api.exception.InvalidPasswordException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -110,5 +112,24 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new UserNotFoundException(id));
 
 		userRepository.delete(user);
-}
+    }
+
+    @Override
+    public void changePassword(Long id, ChangePasswordRequest request) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        if (!passwordEncoder.matches(
+                request.getCurrentPassword(),
+                user.getPassword())) {
+
+            throw new InvalidPasswordException();
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedAt(LocalDateTime.now());
+
+        userRepository.save(user);
+    }
 }

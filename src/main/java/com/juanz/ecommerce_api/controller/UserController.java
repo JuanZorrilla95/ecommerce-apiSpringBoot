@@ -2,6 +2,7 @@ package com.juanz.ecommerce_api.controller;
 
 import com.juanz.ecommerce_api.controller.dto.request.UserRequest;
 import com.juanz.ecommerce_api.controller.dto.response.UserResponse;
+import com.juanz.ecommerce_api.controller.dto.request.ChangePasswordRequest;
 import com.juanz.ecommerce_api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +54,14 @@ public class UserController {
 		userService.delete(id);
 
 		return ResponseEntity.noContent().build();
-}
+    }
+    @PatchMapping("/{id}/password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Long id,
+            @Valid @RequestBody ChangePasswordRequest request) {
+
+        userService.changePassword(id, request);
+
+        return ResponseEntity.noContent().build();
+    }
 }
