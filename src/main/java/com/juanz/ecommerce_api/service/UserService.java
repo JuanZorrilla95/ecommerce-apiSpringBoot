@@ -13,5 +13,6 @@ public interface UserService {
     UserResponse update(Long id, UserRequest request);
 	void delete(Long id);
     void changePassword(Long id, ChangePasswordRequest request);
+	void changePassword(Long id, ChangePasswordRequest request);
     List<UserResponse> findAll();
 }
