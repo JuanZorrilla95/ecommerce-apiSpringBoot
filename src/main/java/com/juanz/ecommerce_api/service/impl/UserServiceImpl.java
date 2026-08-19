@@ -1,9 +1,12 @@
 package com.juanz.ecommerce_api.service.impl;
 
 import com.juanz.ecommerce_api.controller.dto.request.UserRequest;
-import com.juanz.ecommerce_api.controller.dto.response.UserResponse;
 import com.juanz.ecommerce_api.controller.dto.request.ChangePasswordRequest;
+import com.juanz.ecommerce_api.controller.dto.request.LoginRequest;
+import com.juanz.ecommerce_api.controller.dto.response.UserResponse;
 import com.juanz.ecommerce_api.controller.dto.response.ErrorResponse;
+import com.juanz.ecommerce_api.controller.dto.response.LoginResponse;
+
 import com.juanz.ecommerce_api.entity.Role;
 import com.juanz.ecommerce_api.entity.User;
 import com.juanz.ecommerce_api.repository.UserRepository;
@@ -132,4 +135,10 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
     }
+
+@Override
+public LoginResponse login(LoginRequest request) {
+    throw new UnsupportedOperationException("Login not implemented yet");
+}
+
 }
