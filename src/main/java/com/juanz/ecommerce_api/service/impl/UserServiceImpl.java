@@ -11,10 +11,12 @@ import com.juanz.ecommerce_api.entity.Role;
 import com.juanz.ecommerce_api.entity.User;
 import com.juanz.ecommerce_api.repository.UserRepository;
 import com.juanz.ecommerce_api.service.UserService;
+import com.juanz.ecommerce_api.config.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.juanz.ecommerce_api.exception.UserAlreadyExistsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 //excepciones
 import com.juanz.ecommerce_api.exception.UserNotFoundException;
 import com.juanz.ecommerce_api.exception.InvalidPasswordException;
@@ -22,11 +24,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+//constructor con todos los atributos de la clase, para inyectar dependencias
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository; //Spring inyecta automáticamente el repositorio
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
     public UserResponse create(UserRequest request) {
@@ -135,10 +139,31 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
     }
+    //metodo login
+    @Override
+    public LoginResponse login(LoginRequest request) {
 
-@Override
-public LoginResponse login(LoginRequest request) {
-    throw new UnsupportedOperationException("Login not implemented yet");
-}
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() ->
+                        new RuntimeException("Invalid email or password")
+                );
+
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword()
+        )) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        String token = jwtService.generateToken(user.getEmail());
+
+        return LoginResponse.builder()
+                .token(token)
+                .build();
+    }
+    // @Override
+    // public LoginResponse login(LoginRequest request) {
+    //     throw new UnsupportedOperationException("Login not implemented yet");
+    // }
 
 }
