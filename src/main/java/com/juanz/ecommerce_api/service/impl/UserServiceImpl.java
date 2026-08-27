@@ -147,7 +147,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() ->
                         new RuntimeException("Invalid email or password")
                 );
-
+        System.out.println("Email recibido: " + request.getEmail());
+        System.out.println("Password recibida: " + request.getPassword());
+        System.out.println("Password BD: " + user.getPassword());
+        System.out.println("Match: " +
+                passwordEncoder.matches(request.getPassword(), user.getPassword()));
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 user.getPassword()
