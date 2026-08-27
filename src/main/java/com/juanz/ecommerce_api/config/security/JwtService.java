@@ -17,13 +17,14 @@ public class JwtService {
 
     private final long expiration = 1000 * 60 * 60; // 1 hora
 
-    public String generateToken(String email) {
+    public String generateToken(String email, String role) {
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .subject(email)
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(secretKey)
@@ -33,6 +34,11 @@ public class JwtService {
     public String extractEmail(String token) {
 
         return getClaims(token).getSubject();
+    }
+
+    public String extractRole(String token) {
+
+        return getClaims(token).get("role", String.class);
     }
 
     public boolean isTokenValid(String token) {
